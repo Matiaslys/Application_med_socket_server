@@ -9,15 +9,19 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Server{
+public class Server {
     private static boolean stillplaying = true;
+    private static int numberOfPlayers = 1;
+    private static int i;
+    private static int otherplayer;
     private static ArrayList<ObjectInputStream> fromPlayers = new ArrayList<>();
     private static ArrayList<ObjectOutputStream> toPlayers = new ArrayList<>();
     private static ArrayList<Card> dealersHand = new ArrayList<>();
     private static ArrayList<Card> hand = new ArrayList<>();
     private static Deck deck = new Deck();
+
     public static void main(String[] args) {
-        new Thread( () -> {
+        new Thread(() -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(8000);
                 System.out.println(new Date() + ": Server started at socket 8000\n");
@@ -64,10 +68,8 @@ public class Server{
             try {
                 Game();
                 visKort();
-//                for (int i = 0; i < 2; i++) {
                 træk();
-
-//                }
+                end();
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -103,27 +105,43 @@ public class Server{
         }
 
         private void træk() throws IOException, ClassNotFoundException {
-//            for (int i = 1; i <= 2; i++) {
-            int i = (int) fromPlayers.get(0).readObject();
-                if (i == 1) {
-                    Turn turn1 = (Turn) fromPlayers.get(0).readObject();
-                    String userinput = turn1.getMessage();
+            for (i = 0; i <= numberOfPlayers; i++) {
+                otherplayer = i + 1;
+                if (i == numberOfPlayers) {
+                    otherplayer = 0;
+                }
+                String message = (String) fromPlayers.get(i).readObject();
+                toPlayers.get(otherplayer).writeObject(message);
+                String userinput = message;
+
+                while (!userinput.equalsIgnoreCase("stand")) {
                     if (userinput.equalsIgnoreCase("hit")) {
-                        toPlayers.get(0).writeObject(deck.Draw());
-                        toPlayers.get(1).writeObject(deck.Draw());
+                        Card card = deck.Draw();
+                        toPlayers.get(i).writeObject(card);
+                        toPlayers.get(otherplayer).writeObject(card);
                         System.out.println("yea");
                     }
+                    message = (String) fromPlayers.get(i).readObject();
+                    toPlayers.get(otherplayer).writeObject(message);
+                    userinput = message;
                 }
-                if (i == 2) {
-                    Turn turn2 = (Turn) fromPlayers.get(1).readObject();
-                    String userinput2 = turn2.getMessage();
-                    if (userinput2.equalsIgnoreCase("hit")) {
-                        toPlayers.get(0).writeObject(deck.Draw());
-                        toPlayers.get(1).writeObject(deck.Draw());
-                        System.out.println("yea2");
-                    }
+            }
+        }
+
+        public void end() {
+            try {
+                fromPlayers.get(0).readObject();
+                fromPlayers.get(1).readObject();
+                double dealershandvalue = (double) fromPlayers.get(0).readObject();
+                while (dealershandvalue < 17) {
+                    Card card = deck.Draw();
+                    toPlayers.get(0).writeObject(card);
+                    toPlayers.get(1).writeObject(card);
+                    dealershandvalue = (double) fromPlayers.get(0).readObject();
                 }
-//            }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }
