@@ -106,12 +106,14 @@ public class Server {
 
         private void træk() throws IOException, ClassNotFoundException {
             for (i = 0; i <= numberOfPlayers; i++) {
-                otherplayer = i + 1;
                 if (i == numberOfPlayers) {
                     otherplayer = 0;
+                } else {
+                    otherplayer = i + 1;
                 }
                 String message = (String) fromPlayers.get(i).readObject();
                 toPlayers.get(otherplayer).writeObject(message);
+                System.out.println(message);
                 String userinput = message;
 
                 while (!userinput.equalsIgnoreCase("stand")) {
@@ -119,7 +121,10 @@ public class Server {
                         Card card = deck.Draw();
                         toPlayers.get(i).writeObject(card);
                         toPlayers.get(otherplayer).writeObject(card);
-                        System.out.println("yea");
+                    }
+                    double playerHandValue = (double) fromPlayers.get(i).readObject();
+                    if (playerHandValue > 21) {
+                        break;
                     }
                     message = (String) fromPlayers.get(i).readObject();
                     toPlayers.get(otherplayer).writeObject(message);
@@ -130,8 +135,8 @@ public class Server {
 
         public void end() {
             try {
-                fromPlayers.get(0).readObject();
-                fromPlayers.get(1).readObject();
+//                fromPlayers.get(0).readObject();
+//                fromPlayers.get(1).readObject();
                 double dealershandvalue = (double) fromPlayers.get(0).readObject();
                 while (dealershandvalue < 17) {
                     Card card = deck.Draw();

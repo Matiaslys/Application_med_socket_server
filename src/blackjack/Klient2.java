@@ -94,7 +94,6 @@ public class Klient2 {
     private void Turn() throws IOException, ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
         String userinput = " ";
-        toServer.writeObject(userinput);
         if (myTurn) {
             System.out.println("det er min tur");
         } else {
@@ -119,6 +118,7 @@ public class Klient2 {
                 }
                 if (opponentsHandValue > 21) {
                     System.out.println("Min modstander har tabt");
+//                    fromServer.readObject();
                     break;
                 }
             }
@@ -134,10 +134,12 @@ public class Klient2 {
                     }
                     myHandValue = myHandValue + newCard.getValue();
                     System.out.println("tilsammen har jeg " + myHandValue);
+                    toServer.writeObject(myHandValue);
                 }
             }
             if (myHandValue > 21) {
                 System.out.println("Du har tabt ");
+//                fromServer.readObject();
                 break;
             }
         }

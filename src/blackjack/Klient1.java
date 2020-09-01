@@ -94,7 +94,6 @@ public class Klient1 {
     private void Turn() throws IOException, ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
         String userinput = " ";
-        toServer.writeObject(userinput);
         if (myTurn) {
             System.out.println("det er min tur");
         } else {
@@ -118,7 +117,7 @@ public class Klient1 {
                     }
                 }
                 if (opponentsHandValue > 21) {
-                    System.out.println("din modstander har tabt");
+                    System.out.println("Min modstander har tabt");
                     break;
                 }
             }
@@ -133,6 +132,7 @@ public class Klient1 {
                     }
                     myHandValue = myHandValue + newCard.getValue();
                     System.out.println("tilsammen har jeg " + myHandValue);
+                    toServer.writeObject(myHandValue);
                 }
             }
             if (myHandValue > 21) {
@@ -178,6 +178,8 @@ public class Klient1 {
         } else if (dealersHandValue > myHandValue && dealersHandValue > opponentsHandValue && myHandValue <= 21 && dealersHandValue <= 21 && opponentsHandValue <= 21 || dealersHandValue <= 21 && myHandValue > 21 && opponentsHandValue > 21
                 || dealersHandValue <= 21 && dealersHandValue > myHandValue && opponentsHandValue > 21 || dealersHandValue > opponentsHandValue && myHandValue > 21) {
             System.out.println("dealer vandt");
+        } else if (dealersHandValue > 21 && myHandValue > 21 && opponentsHandValue > 21) {
+            System.out.println("ingen har vundet");
         } else if (myHandValue == dealersHandValue && opponentsHandValue < myHandValue) {
             System.out.println("der er push imellem mig og dealeren");
         } else if (myHandValue == opponentsHandValue && dealersHandValue < myHandValue) {
